@@ -10,6 +10,7 @@ import type { Character, Module } from '../data/tracks';
 import { moduleIndex, isModuleCompleted, progressKey } from '../data/tracks';
 import { StatsBar } from './StatsBar';
 import { ModuleCard } from './ModuleCard';
+import { Footer } from './Footer';
 
 const iconMap: Record<string, React.ComponentType<{ size?: number; color?: string }>> = {
 	Server, Monitor, Layers, Cloud, BarChart2, Brain, GitBranch, ShieldAlert, ShieldBan,
@@ -438,12 +439,7 @@ export function LearningPathPage({ character, onBack, onNavigateToModule, focusM
 				</div>
 			</div>
 
-			{/* Footer */}
-			<div className="text-center py-8 border-t" style={{borderColor: 'rgba(255,255,255,0.05)'}}>
-				<p style={{fontFamily: "'Cinzel', serif", fontSize: '11px', color: '#1E293B', letterSpacing: '0.2em'}}>
-					JORNADA DEV © 2026 · FORJE SEU DESTINO
-				</p>
-			</div>
+			<Footer/>
 		</div>
 	);
 }
