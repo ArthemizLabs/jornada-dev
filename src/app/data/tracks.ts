@@ -71,7 +71,7 @@ export const tracks: Character[] = [
 		archetype: 'Cavaleiro Sombrio',
 		accentColor: '#2196f3',
 		accentGlow: 'rgba(0,191,255,0.25)',
-		icon: 'Code',
+		icon: 'Server',
 		stats: { nivel: 1, missoes: 2, progresso: 4, xp: 1200 },
 		certificates: [
 			{ title: 'Oracle Certified Professional: Java SE 17 ou 21 Developer (1Z0-829)', issuer: 'Oracle', link: 'https://mylearn.oracle.com/ou/learning-path/become-a-java-se-17-developer/99487' },
@@ -225,7 +225,7 @@ export const tracks: Character[] = [
 		archetype: 'Andarilho Portátil',
 		accentColor: '#813B10',
 		accentGlow: 'rgb(129 59 16 / 0.25)',
-		icon: 'Monitor',
+		icon: 'Smartphone',
 		stats: { nivel: 1, missoes: 2, progresso: 4, xp: 1200 },
 		certificates: [
 			{ title: 'Meta Android Developer', issuer: 'Meta / Coursera', link: 'https://www.coursera.org/professional-certificates/meta-android-developer' },
@@ -275,7 +275,7 @@ export const tracks: Character[] = [
 		archetype: 'Artífice Dimensional',
 		accentColor: '#500101',
 		accentGlow: 'rgb(80 1 1 / 0.25)',
-		icon: 'Box',
+		icon: 'Cuboid',
 		stats: { nivel: 1, missoes: 2, progresso: 4, xp: 1200 },
 		certificates: [
 			{ title: 'Unity Certified Associate: 3D Artist', issuer: 'Unity', link: 'https://unity.com/products/unity-certifications/user-programmer' },

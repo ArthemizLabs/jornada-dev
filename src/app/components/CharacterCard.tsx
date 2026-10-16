@@ -1,14 +1,5 @@
-import type React from 'react';
-import {
-	Server, Monitor, Layers, Cloud, BarChart2, BrainCircuit, GitBranch, ShieldAlert,
-	Smartphone, Gamepad2, Cuboid, Shield, Palette, Bug, Database, Cpu, Bot, Link, ShieldBan,
-} from 'lucide-react';
 import type { Character } from '../data/tracks';
-
-const iconMap: Record<string, React.ComponentType<{ size?: number; color?: string }>> = {
-	Server, Monitor, Layers, Cloud, BarChart2, BrainCircuit, GitBranch, ShieldAlert,
-	Smartphone, Gamepad2, Cuboid, Shield, Palette, Bug, Database, Cpu, Bot, Link, ShieldBan,
-};
+import { getTrackIcon } from './trackIcons';
 
 interface CharacterCardProps {
 	character: Character;
@@ -17,7 +8,7 @@ interface CharacterCardProps {
 }
 
 export function CharacterCard({ character, isSelected, onClick }: CharacterCardProps) {
-	const Icon = iconMap[character.icon] ?? Server;
+	const Icon = getTrackIcon(character.icon);
 
 	return (
 		<button

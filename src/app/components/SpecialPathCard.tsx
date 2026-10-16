@@ -1,10 +1,5 @@
-import type React from 'react';
-import { Brain, Flame, Sigma, Sparkles } from 'lucide-react';
 import type { SpecialPath } from '../data/tracks';
-
-const iconMap: Record<string, React.ComponentType<{ size?: number; color?: string }>> = {
-	Brain, Sigma, Flame, Sparkles,
-};
+import { getTrackIcon } from './trackIcons';
 
 interface SpecialPathCardProps {
 	path: SpecialPath;
@@ -12,7 +7,7 @@ interface SpecialPathCardProps {
 }
 
 export function SpecialPathCard({ path, onClick }: SpecialPathCardProps) {
-	const Icon = iconMap[path.icon] ?? Brain;
+	const Icon = getTrackIcon(path.icon);
 
 	return (
 		<div

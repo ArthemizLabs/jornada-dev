@@ -1,22 +1,12 @@
 import { useEffect, useState } from 'react';
 import type React from 'react';
-import {
-	ArrowLeft, Award, ExternalLink, Github, Instagram,
-	Server, Monitor, Layers, Cloud, BarChart2, Brain, GitBranch, ShieldAlert, ShieldBan,
-	Gamepad2, Shield, Palette, Bug, Database, Cpu, Bot, Link, Box, Code,
-	Sparkles, Sigma, Flame,
-} from 'lucide-react';
+import { ArrowLeft, Award, ExternalLink, Github, Instagram } from 'lucide-react';
 import type { Character, Module } from '../data/tracks';
 import { moduleIndex, isModuleCompleted, progressKey } from '../data/tracks';
 import { StatsBar } from './StatsBar';
 import { ModuleCard } from './ModuleCard';
 import { Footer } from './Footer';
-
-const iconMap: Record<string, React.ComponentType<{ size?: number; color?: string }>> = {
-	Server, Monitor, Layers, Cloud, BarChart2, Brain, GitBranch, ShieldAlert, ShieldBan,
-	Gamepad2, Shield, Palette, Bug, Database, Cpu, Bot, Link, Box, Code,
-	Sparkles, Sigma, Flame,
-};
+import { getTrackIcon } from './trackIcons';
 
 const applyStoredProgress = (character: Character): Module[] => {
 	try {
@@ -45,7 +35,7 @@ interface LearningPathPageProps {
 }
 
 export function LearningPathPage({ character, onBack, onNavigateToModule, focusModule }: LearningPathPageProps) {
-	const Icon = iconMap[character.icon] ?? Server;
+	const Icon = getTrackIcon(character.icon);
 	const sequential = character.sequential !== false;
 	const [modules, setModules] = useState(() => applyStoredProgress(character));
 	const [highlightId, setHighlightId] = useState<string | null>(null);
