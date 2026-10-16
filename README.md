@@ -64,7 +64,7 @@ persistido em `localStorage` na chave `jornada-dev:progress:{trackId}`.
 ## Learning Tracks
 
 Cada trilha tem um personagem com arquétipo e cor de destaque (`accentColor` + `accentGlow`) únicos.
-Cada uma traz de 6 a 9 módulos — do fundamento ao **Desafio Final** — mais uma lista de **certificações** reais
+Cada uma traz de 6 a 11 módulos — do fundamento ao **Desafio Final** — mais uma lista de **certificações** reais
 sugeridas, desbloqueadas ao concluir a trilha inteira.
 
 | Track            | Character Name           | Archetype             | Accent Color          |
