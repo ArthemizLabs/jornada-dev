@@ -22,7 +22,13 @@ const applyStoredProgress = (character: Character): Module[] => {
 		const raw = localStorage.getItem(progressKey(character.id));
 		if (!raw) return character.modules;
 		const saved = JSON.parse(raw) as Record<string, Module['status']>;
-		return character.modules.map((m) => (saved[m.id] ? { ...m, status: saved[m.id] } : m));
+		const sequential = character.sequential !== false;
+		return character.modules.map((m) => {
+			const status = saved[m.id];
+			if (!status) return m;
+			// Progresso salvo antes da trilha virar livre: 'bloqueado' nunca seria destravado
+			return { ...m, status: !sequential && status === 'bloqueado' ? 'disponível' : status };
+		});
 	} catch {
 		return character.modules;
 	}
@@ -35,6 +41,7 @@ interface LearningPathPageProps {
 
 export function LearningPathPage({ character, onBack }: LearningPathPageProps) {
 	const Icon = iconMap[character.icon] ?? Server;
+	const sequential = character.sequential !== false;
 	const [modules, setModules] = useState(() => applyStoredProgress(character));
 
 	useEffect(() => {
@@ -62,6 +69,7 @@ export function LearningPathPage({ character, onBack }: LearningPathPageProps) {
 				title: ref?.moduleTitle ?? reqId,
 				trackName: ref?.trackName ?? '???',
 				met: Boolean(met),
+				href: ref?.href,
 			};
 		});
 
@@ -100,7 +108,7 @@ export function LearningPathPage({ character, onBack }: LearningPathPageProps) {
 					return { ...module, status: 'concluído' };
 				}
 
-				if (index === currentIndex + 1 && module.status === 'bloqueado') {
+				if (sequential && index === currentIndex + 1 && module.status === 'bloqueado') {
 					return { ...module, status: 'disponível' };
 				}
 
@@ -122,7 +130,7 @@ export function LearningPathPage({ character, onBack }: LearningPathPageProps) {
 				}
 
 				// Re-bloqueia o próximo módulo se ele ainda não foi iniciado/concluído
-				if (index === currentIndex + 1 && module.status === 'disponível') {
+				if (sequential && index === currentIndex + 1 && module.status === 'disponível') {
 					return { ...module, status: 'bloqueado' };
 				}
 
@@ -403,7 +411,9 @@ export function LearningPathPage({ character, onBack }: LearningPathPageProps) {
 					}}
 				>
 					<p style={{fontSize: '12px', color: '#475569'}}>
-						🔒 Os próximos módulos são desbloqueados conforme você avança na jornada.
+						{sequential
+							? '🔒 Os próximos módulos são desbloqueados conforme você avança na jornada.'
+							: '🔒 Estude na ordem que preferir: cada módulo é liberado ao concluir os seus requisitos.'}
 					</p>
 				</div>
 			</div>

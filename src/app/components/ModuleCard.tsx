@@ -7,7 +7,7 @@ import {
 	Clock, Link, Coins, Users, Cpu, FileCode, Star, Type, AtomIcon, FigmaIcon, ShieldAlert,
 	Sliders, Smartphone, AlertCircle, RefreshCw, Wifi, FileText, Key, GitMerge,
 	Binary, BarChart, Compass, Grid, Variable, Diff,
-	BookOpen, Play, RotateCcw, Check,
+	BookOpen, Play, RotateCcw, Check, ExternalLink,
 } from 'lucide-react';
 import type { Module } from '../data/tracks';
 
@@ -26,6 +26,8 @@ interface PrereqInfo {
 	title: string;
 	trackName: string;
 	met: boolean;
+	/** Link direto para o curso do requisito (playlist ou livro). */
+	href?: string;
 }
 
 interface ModuleCardProps {
@@ -230,26 +232,42 @@ export function ModuleCard({ module, index, accentColor, accentGlow, isFeatured,
 							Requisitos
 						</p>
 						<div className="flex flex-wrap gap-1.5">
-							{prereqs!.map((p) => (
-								<span
-									key={p.id}
-									style={{
-										display: 'inline-flex',
-										alignItems: 'center',
-										gap: '4px',
-										fontFamily: "'Inter', sans-serif",
-										fontSize: '10px',
-										padding: '3px 8px',
-										borderRadius: '999px',
-										color: p.met ? '#22C55E' : '#F59E0B',
-										background: p.met ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.1)',
-										border: `1px solid ${p.met ? 'rgba(34,197,94,0.3)' : 'rgba(245,158,11,0.3)'}`,
-									}}
-								>
-									{p.met ? <Check size={10}/> : <Lock size={10}/>}
-									{p.title} · {p.trackName}
-								</span>
-							))}
+							{prereqs!.map((p) => {
+								const chipStyle: React.CSSProperties = {
+									display: 'inline-flex',
+									alignItems: 'center',
+									gap: '4px',
+									fontFamily: "'Inter', sans-serif",
+									fontSize: '10px',
+									padding: '3px 8px',
+									borderRadius: '999px',
+									color: p.met ? '#22C55E' : '#F59E0B',
+									background: p.met ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.1)',
+									border: `1px solid ${p.met ? 'rgba(34,197,94,0.3)' : 'rgba(245,158,11,0.3)'}`,
+								};
+								const content = (
+									<>
+										{p.met ? <Check size={10}/> : <Lock size={10}/>}
+										{p.title} · {p.trackName}
+										{p.href && <ExternalLink size={9}/>}
+									</>
+								);
+								return p.href ? (
+									<a
+										key={p.id}
+										href={p.href}
+										target="_blank"
+										rel="noopener noreferrer"
+										title={`Abrir curso: ${p.title}`}
+										style={{...chipStyle, cursor: 'pointer', textDecoration: 'none'}}
+										className="hover:opacity-70 transition-opacity"
+									>
+										{content}
+									</a>
+								) : (
+									<span key={p.id} style={chipStyle}>{content}</span>
+								);
+							})}
 						</div>
 					</div>
 				)}
