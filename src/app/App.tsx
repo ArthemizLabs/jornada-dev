@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { type Character, tracks } from './data/tracks';
+import { type Character, moduleIndex, specialPaths, tracks } from './data/tracks';
 import { CharacterSelectPage } from './components/CharacterSelectPage';
 import { LearningPathPage } from './components/LearningPathPage';
 
@@ -9,11 +9,26 @@ export default function App() {
 	const [page, setPage] = useState<Page>('select');
 	const [selected, setSelected] = useState<Character>(tracks[0]);
 
-	const handleStart = () => setPage('path');
+	const [focusModule, setFocusModule] = useState<{ id: string; n: number } | null>(null);
+
+	const handleStart = () => {
+		setFocusModule(null);
+		setPage('path');
+	};
 	const handleBack = () => setPage('select');
 	const handleSelect = (c: Character) => setSelected(c);
 	const handleStartSpecial = (c: Character) => {
 		setSelected(c);
+		setFocusModule(null);
+		setPage('path');
+	};
+	// Chip de requisito: abre a trilha dona do módulo e foca nele
+	const handleNavigateToModule = (moduleId: string) => {
+		const ref = moduleIndex[moduleId];
+		const target = ref && [...tracks, ...specialPaths].find((c) => c.id === ref.trackId);
+		if (!target) return;
+		setSelected(target);
+		setFocusModule((prev) => ({ id: moduleId, n: (prev?.n ?? 0) + 1 }));
 		setPage('path');
 	};
 
@@ -28,8 +43,11 @@ export default function App() {
 				/>
 			) : (
 				<LearningPathPage
+					key={selected.id}
 					character={selected}
 					onBack={handleBack}
+					onNavigateToModule={handleNavigateToModule}
+					focusModule={focusModule}
 				/>
 			)}
 		</div>

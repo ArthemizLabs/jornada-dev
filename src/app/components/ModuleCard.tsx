@@ -7,7 +7,7 @@ import {
 	Clock, Link, Coins, Users, Cpu, FileCode, Star, Type, AtomIcon, FigmaIcon, ShieldAlert,
 	Sliders, Smartphone, AlertCircle, RefreshCw, Wifi, FileText, Key, GitMerge,
 	Binary, BarChart, Compass, Grid, Variable, Diff,
-	BookOpen, Play, RotateCcw, Check,
+	BookOpen, Play, RotateCcw, Check, ArrowRight,
 } from 'lucide-react';
 import type { Module } from '../data/tracks';
 
@@ -37,11 +37,15 @@ interface ModuleCardProps {
 	isLast?: boolean;
 	prereqs?: PrereqInfo[];
 	gated?: boolean;
+	/** Destaque temporário ao chegar aqui por um chip de requisito. */
+	highlighted?: boolean;
+	/** Abre o módulo requisito dentro do site (na trilha dona dele). */
+	onNavigatePrereq?: (moduleId: string) => void;
 	onComplete?: (moduleId: string) => void;
 	onUndo?: (moduleId: string) => void;
 }
 
-export function ModuleCard({ module, index, accentColor, accentGlow, isFeatured, isLast, prereqs, gated, onComplete, onUndo }: ModuleCardProps) {
+export function ModuleCard({ module, index, accentColor, accentGlow, isFeatured, isLast, prereqs, gated, highlighted, onNavigatePrereq, onComplete, onUndo }: ModuleCardProps) {
 	const Icon = iconMap[module.icon] ?? Code;
 	const isCompleted = module.status === 'concluído';
 	const seqLocked = module.status === 'bloqueado';
@@ -82,7 +86,7 @@ export function ModuleCard({ module, index, accentColor, accentGlow, isFeatured,
 	};
 
 	return (
-		<div className="flex gap-4 items-stretch">
+		<div id={`module-${module.id}`} className="flex gap-4 items-stretch" style={{scrollMarginTop: '80px'}}>
 			{/* Timeline connector */}
 			<div className="flex flex-col items-center" style={{minWidth: '40px'}}>
 				<div
@@ -140,7 +144,10 @@ export function ModuleCard({ module, index, accentColor, accentGlow, isFeatured,
 						: isCompleted
 							? `1px solid ${accentColor}40`
 							: '1px solid rgba(255,255,255,0.07)',
-					boxShadow: isFeatured ? `0 0 30px ${accentGlow}, inset 0 0 20px ${accentGlow}30` : 'none',
+					boxShadow: highlighted
+						? `0 0 0 2px ${accentColor}, 0 0 32px ${accentGlow}`
+						: isFeatured ? `0 0 30px ${accentGlow}, inset 0 0 20px ${accentGlow}30` : 'none',
+					transition: 'box-shadow 0.4s ease',
 					opacity: isLocked ? 0.5 : 1,
 					marginBottom: '12px',
 				}}
@@ -230,26 +237,34 @@ export function ModuleCard({ module, index, accentColor, accentGlow, isFeatured,
 							Requisitos
 						</p>
 						<div className="flex flex-wrap gap-1.5">
-							{prereqs!.map((p) => (
-								<span
-									key={p.id}
-									style={{
-										display: 'inline-flex',
-										alignItems: 'center',
-										gap: '4px',
-										fontFamily: "'Inter', sans-serif",
-										fontSize: '10px',
-										padding: '3px 8px',
-										borderRadius: '999px',
-										color: p.met ? '#22C55E' : '#F59E0B',
-										background: p.met ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.1)',
-										border: `1px solid ${p.met ? 'rgba(34,197,94,0.3)' : 'rgba(245,158,11,0.3)'}`,
-									}}
-								>
-									{p.met ? <Check size={10}/> : <Lock size={10}/>}
-									{p.title} · {p.trackName}
-								</span>
-							))}
+							{prereqs!.map((p) => {
+								const chipStyle: React.CSSProperties = {
+									display: 'inline-flex',
+									alignItems: 'center',
+									gap: '4px',
+									fontFamily: "'Inter', sans-serif",
+									fontSize: '10px',
+									padding: '3px 8px',
+									borderRadius: '999px',
+									color: p.met ? '#22C55E' : '#F59E0B',
+									background: p.met ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.1)',
+									border: `1px solid ${p.met ? 'rgba(34,197,94,0.3)' : 'rgba(245,158,11,0.3)'}`,
+								};
+								return (
+									<button
+										key={p.id}
+										type="button"
+										onClick={() => onNavigatePrereq?.(p.id)}
+										title={`Ir para o módulo: ${p.title}`}
+										style={{...chipStyle, cursor: 'pointer'}}
+										className="hover:opacity-70 transition-opacity"
+									>
+										{p.met ? <Check size={10}/> : <Lock size={10}/>}
+										{p.title} · {p.trackName}
+										<ArrowRight size={9}/>
+									</button>
+								);
+							})}
 						</div>
 					</div>
 				)}

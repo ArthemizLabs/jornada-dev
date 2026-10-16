@@ -64,8 +64,15 @@ persistido em `localStorage` na chave `jornada-dev:progress:{trackId}`.
 ## Learning Tracks
 
 Cada trilha tem um personagem com arquétipo e cor de destaque (`accentColor` + `accentGlow`) únicos.
-Cada uma traz de 6 a 9 módulos — do fundamento ao **Desafio Final** — mais uma lista de **certificações** reais
+Cada uma traz de 6 a 11 módulos — do fundamento ao **Desafio Final** — mais uma lista de **certificações** reais
 sugeridas, desbloqueadas ao concluir a trilha inteira.
+
+As 17 trilhas de carreira são **sequenciais**: o próximo módulo só abre ao concluir o anterior. Os caminhos especiais
+(Essenciais, Avançado e Matemática) são **livres**: dá para estudar na ordem que quiser, e cada módulo só trava
+pelos seus `requires`, quando o conteúdo é de fato sequencial (ex.: Pré-Cálculo antes de Cálculo).
+
+**Requisitos (`requires`):** lista de IDs de módulos, da mesma trilha ou de outra, que precisam estar concluídos.
+Cada requisito aparece como chip no card; ao clicar, o site abre a trilha dona do módulo e rola até ele.
 
 | Track            | Character Name           | Archetype             | Accent Color          |
 |------------------|--------------------------|-----------------------|:----------------------|
@@ -126,6 +133,7 @@ type Character = {
   stats: { nivel: number; progresso: number; missoes: number; xp: number }
   modules: Module[]
   certificates?: Certificate[]
+  sequential?: boolean  // false = módulos livres, travados só por `requires` (padrão: true)
 }
 
 type Module = {
@@ -137,6 +145,8 @@ type Module = {
   lessonCount: number
   status: 'bloqueado' | 'disponível' | 'em-progresso' | 'concluído'
   link?: string         // material externo do módulo
+  book?: string         // livro (PDF local ou URL)
+  requires?: string[]   // IDs de módulos que precisam estar concluídos antes
 }
 
 type Certificate = { title: string; issuer: string; link: string }

@@ -22,7 +22,13 @@ const applyStoredProgress = (character: Character): Module[] => {
 		const raw = localStorage.getItem(progressKey(character.id));
 		if (!raw) return character.modules;
 		const saved = JSON.parse(raw) as Record<string, Module['status']>;
-		return character.modules.map((m) => (saved[m.id] ? { ...m, status: saved[m.id] } : m));
+		const sequential = character.sequential !== false;
+		return character.modules.map((m) => {
+			const status = saved[m.id];
+			if (!status) return m;
+			// Progresso salvo antes da trilha virar livre: 'bloqueado' nunca seria destravado
+			return { ...m, status: !sequential && status === 'bloqueado' ? 'disponível' : status };
+		});
 	} catch {
 		return character.modules;
 	}
@@ -31,11 +37,17 @@ const applyStoredProgress = (character: Character): Module[] => {
 interface LearningPathPageProps {
 	character: Character;
 	onBack: () => void;
+	/** Abre um módulo (de qualquer trilha) dentro do site. */
+	onNavigateToModule: (moduleId: string) => void;
+	/** Módulo a rolar/destacar ao entrar; `n` muda a cada clique para repetir o foco. */
+	focusModule?: { id: string; n: number } | null;
 }
 
-export function LearningPathPage({ character, onBack }: LearningPathPageProps) {
+export function LearningPathPage({ character, onBack, onNavigateToModule, focusModule }: LearningPathPageProps) {
 	const Icon = iconMap[character.icon] ?? Server;
+	const sequential = character.sequential !== false;
 	const [modules, setModules] = useState(() => applyStoredProgress(character));
+	const [highlightId, setHighlightId] = useState<string | null>(null);
 
 	useEffect(() => {
 		setModules(applyStoredProgress(character));
@@ -49,6 +61,20 @@ export function LearningPathPage({ character, onBack }: LearningPathPageProps) {
 			// storage indisponível (modo privado etc.) — progresso segue apenas em memória
 		}
 	}, [modules, character.id]);
+
+	// Chegou por um chip de requisito: rola até o módulo e destaca por instantes
+	useEffect(() => {
+		if (!focusModule) return;
+		const frame = requestAnimationFrame(() => {
+			document.getElementById(`module-${focusModule.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+			setHighlightId(focusModule.id);
+		});
+		const timer = setTimeout(() => setHighlightId(null), 2200);
+		return () => {
+			cancelAnimationFrame(frame);
+			clearTimeout(timer);
+		};
+	}, [focusModule]);
 
 	// Resolve os pré-requisitos cross-trilha de cada módulo com o status de conclusão
 	const resolvePrereqs = (module: Module) =>
@@ -100,7 +126,7 @@ export function LearningPathPage({ character, onBack }: LearningPathPageProps) {
 					return { ...module, status: 'concluído' };
 				}
 
-				if (index === currentIndex + 1 && module.status === 'bloqueado') {
+				if (sequential && index === currentIndex + 1 && module.status === 'bloqueado') {
 					return { ...module, status: 'disponível' };
 				}
 
@@ -122,7 +148,7 @@ export function LearningPathPage({ character, onBack }: LearningPathPageProps) {
 				}
 
 				// Re-bloqueia o próximo módulo se ele ainda não foi iniciado/concluído
-				if (index === currentIndex + 1 && module.status === 'disponível') {
+				if (sequential && index === currentIndex + 1 && module.status === 'disponível') {
 					return { ...module, status: 'bloqueado' };
 				}
 
@@ -289,6 +315,8 @@ export function LearningPathPage({ character, onBack }: LearningPathPageProps) {
 							isLast={i === modules.length - 1}
 							prereqs={prereqsByModule[i]}
 							gated={isGated(i)}
+							highlighted={module.id === highlightId}
+							onNavigatePrereq={onNavigateToModule}
 							onComplete={handleCompleteModule}
 							onUndo={handleUndoModule}
 						/>
@@ -403,7 +431,9 @@ export function LearningPathPage({ character, onBack }: LearningPathPageProps) {
 					}}
 				>
 					<p style={{fontSize: '12px', color: '#475569'}}>
-						🔒 Os próximos módulos são desbloqueados conforme você avança na jornada.
+						{sequential
+							? '🔒 Os próximos módulos são desbloqueados conforme você avança na jornada.'
+							: '🔒 Estude na ordem que preferir: cada módulo é liberado ao concluir os seus requisitos.'}
 					</p>
 				</div>
 			</div>
