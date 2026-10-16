@@ -37,12 +37,17 @@ const applyStoredProgress = (character: Character): Module[] => {
 interface LearningPathPageProps {
 	character: Character;
 	onBack: () => void;
+	/** Abre um módulo (de qualquer trilha) dentro do site. */
+	onNavigateToModule: (moduleId: string) => void;
+	/** Módulo a rolar/destacar ao entrar; `n` muda a cada clique para repetir o foco. */
+	focusModule?: { id: string; n: number } | null;
 }
 
-export function LearningPathPage({ character, onBack }: LearningPathPageProps) {
+export function LearningPathPage({ character, onBack, onNavigateToModule, focusModule }: LearningPathPageProps) {
 	const Icon = iconMap[character.icon] ?? Server;
 	const sequential = character.sequential !== false;
 	const [modules, setModules] = useState(() => applyStoredProgress(character));
+	const [highlightId, setHighlightId] = useState<string | null>(null);
 
 	useEffect(() => {
 		setModules(applyStoredProgress(character));
@@ -57,6 +62,20 @@ export function LearningPathPage({ character, onBack }: LearningPathPageProps) {
 		}
 	}, [modules, character.id]);
 
+	// Chegou por um chip de requisito: rola até o módulo e destaca por instantes
+	useEffect(() => {
+		if (!focusModule) return;
+		const frame = requestAnimationFrame(() => {
+			document.getElementById(`module-${focusModule.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+			setHighlightId(focusModule.id);
+		});
+		const timer = setTimeout(() => setHighlightId(null), 2200);
+		return () => {
+			cancelAnimationFrame(frame);
+			clearTimeout(timer);
+		};
+	}, [focusModule]);
+
 	// Resolve os pré-requisitos cross-trilha de cada módulo com o status de conclusão
 	const resolvePrereqs = (module: Module) =>
 		(module.requires ?? []).map((reqId) => {
@@ -69,7 +88,6 @@ export function LearningPathPage({ character, onBack }: LearningPathPageProps) {
 				title: ref?.moduleTitle ?? reqId,
 				trackName: ref?.trackName ?? '???',
 				met: Boolean(met),
-				href: ref?.href,
 			};
 		});
 
@@ -297,6 +315,8 @@ export function LearningPathPage({ character, onBack }: LearningPathPageProps) {
 							isLast={i === modules.length - 1}
 							prereqs={prereqsByModule[i]}
 							gated={isGated(i)}
+							highlighted={module.id === highlightId}
+							onNavigatePrereq={onNavigateToModule}
 							onComplete={handleCompleteModule}
 							onUndo={handleUndoModule}
 						/>

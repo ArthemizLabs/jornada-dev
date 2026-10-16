@@ -7,7 +7,7 @@ import {
 	Clock, Link, Coins, Users, Cpu, FileCode, Star, Type, AtomIcon, FigmaIcon, ShieldAlert,
 	Sliders, Smartphone, AlertCircle, RefreshCw, Wifi, FileText, Key, GitMerge,
 	Binary, BarChart, Compass, Grid, Variable, Diff,
-	BookOpen, Play, RotateCcw, Check, ExternalLink,
+	BookOpen, Play, RotateCcw, Check, ArrowRight,
 } from 'lucide-react';
 import type { Module } from '../data/tracks';
 
@@ -26,8 +26,6 @@ interface PrereqInfo {
 	title: string;
 	trackName: string;
 	met: boolean;
-	/** Link direto para o curso do requisito (playlist ou livro). */
-	href?: string;
 }
 
 interface ModuleCardProps {
@@ -39,11 +37,15 @@ interface ModuleCardProps {
 	isLast?: boolean;
 	prereqs?: PrereqInfo[];
 	gated?: boolean;
+	/** Destaque temporário ao chegar aqui por um chip de requisito. */
+	highlighted?: boolean;
+	/** Abre o módulo requisito dentro do site (na trilha dona dele). */
+	onNavigatePrereq?: (moduleId: string) => void;
 	onComplete?: (moduleId: string) => void;
 	onUndo?: (moduleId: string) => void;
 }
 
-export function ModuleCard({ module, index, accentColor, accentGlow, isFeatured, isLast, prereqs, gated, onComplete, onUndo }: ModuleCardProps) {
+export function ModuleCard({ module, index, accentColor, accentGlow, isFeatured, isLast, prereqs, gated, highlighted, onNavigatePrereq, onComplete, onUndo }: ModuleCardProps) {
 	const Icon = iconMap[module.icon] ?? Code;
 	const isCompleted = module.status === 'concluído';
 	const seqLocked = module.status === 'bloqueado';
@@ -84,7 +86,7 @@ export function ModuleCard({ module, index, accentColor, accentGlow, isFeatured,
 	};
 
 	return (
-		<div className="flex gap-4 items-stretch">
+		<div id={`module-${module.id}`} className="flex gap-4 items-stretch" style={{scrollMarginTop: '80px'}}>
 			{/* Timeline connector */}
 			<div className="flex flex-col items-center" style={{minWidth: '40px'}}>
 				<div
@@ -142,7 +144,10 @@ export function ModuleCard({ module, index, accentColor, accentGlow, isFeatured,
 						: isCompleted
 							? `1px solid ${accentColor}40`
 							: '1px solid rgba(255,255,255,0.07)',
-					boxShadow: isFeatured ? `0 0 30px ${accentGlow}, inset 0 0 20px ${accentGlow}30` : 'none',
+					boxShadow: highlighted
+						? `0 0 0 2px ${accentColor}, 0 0 32px ${accentGlow}`
+						: isFeatured ? `0 0 30px ${accentGlow}, inset 0 0 20px ${accentGlow}30` : 'none',
+					transition: 'box-shadow 0.4s ease',
 					opacity: isLocked ? 0.5 : 1,
 					marginBottom: '12px',
 				}}
@@ -245,27 +250,19 @@ export function ModuleCard({ module, index, accentColor, accentGlow, isFeatured,
 									background: p.met ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.1)',
 									border: `1px solid ${p.met ? 'rgba(34,197,94,0.3)' : 'rgba(245,158,11,0.3)'}`,
 								};
-								const content = (
-									<>
-										{p.met ? <Check size={10}/> : <Lock size={10}/>}
-										{p.title} · {p.trackName}
-										{p.href && <ExternalLink size={9}/>}
-									</>
-								);
-								return p.href ? (
-									<a
+								return (
+									<button
 										key={p.id}
-										href={p.href}
-										target="_blank"
-										rel="noopener noreferrer"
-										title={`Abrir curso: ${p.title}`}
-										style={{...chipStyle, cursor: 'pointer', textDecoration: 'none'}}
+										type="button"
+										onClick={() => onNavigatePrereq?.(p.id)}
+										title={`Ir para o módulo: ${p.title}`}
+										style={{...chipStyle, cursor: 'pointer'}}
 										className="hover:opacity-70 transition-opacity"
 									>
-										{content}
-									</a>
-								) : (
-									<span key={p.id} style={chipStyle}>{content}</span>
+										{p.met ? <Check size={10}/> : <Lock size={10}/>}
+										{p.title} · {p.trackName}
+										<ArrowRight size={9}/>
+									</button>
 								);
 							})}
 						</div>

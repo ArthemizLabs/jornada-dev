@@ -72,7 +72,7 @@ As 17 trilhas de carreira são **sequenciais**: o próximo módulo só abre ao c
 pelos seus `requires`, quando o conteúdo é de fato sequencial (ex.: Pré-Cálculo antes de Cálculo).
 
 **Requisitos (`requires`):** lista de IDs de módulos, da mesma trilha ou de outra, que precisam estar concluídos.
-Cada requisito aparece como chip no card e leva direto ao curso (playlist/vídeo, ou o livro se não houver link).
+Cada requisito aparece como chip no card; ao clicar, o site abre a trilha dona do módulo e rola até ele.
 
 | Track            | Character Name           | Archetype             | Accent Color          |
 |------------------|--------------------------|-----------------------|:----------------------|

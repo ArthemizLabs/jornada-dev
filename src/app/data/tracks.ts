@@ -599,8 +599,6 @@ export interface ModuleRef {
 	trackName: string;
 	moduleTitle: string;
 	accentColor: string;
-	/** Destino do curso: playlist/vídeo; se não houver, o livro. */
-	href?: string;
 }
 
 const buildModuleIndex = (): Record<string, ModuleRef> => {
@@ -612,7 +610,6 @@ const buildModuleIndex = (): Record<string, ModuleRef> => {
 				trackName: character.name,
 				moduleTitle: module.title,
 				accentColor: character.accentColor,
-				href: module.link?.trim() || module.book?.trim() || undefined,
 			};
 		}
 	}
